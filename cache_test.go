@@ -1,6 +1,7 @@
 package lruCache
 
 import (
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -67,6 +68,7 @@ func benchmarkCache(count int, c cacheInterface, b *testing.B) {
 }
 
 var cacheSize = 4
+var numCPU = runtime.NumCPU()
 
 func BenchmarkActorModel1(b *testing.B) {
 	cache := NewLRUActorModel(cacheSize)
@@ -79,6 +81,19 @@ func BenchmarkMutex1(b *testing.B) {
 func BenchmarkSpinlock1(b *testing.B) {
 	cache := NewLRUSpinlock(cacheSize)
 	benchmarkCache(1, cache, b)
+}
+
+func BenchmarkActorModelNumCPU(b *testing.B) {
+	cache := NewLRUActorModel(cacheSize)
+	benchmarkCache(numCPU, cache, b)
+}
+func BenchmarkMutexNumCPU(b *testing.B) {
+	cache := NewLRUMutex(cacheSize)
+	benchmarkCache(numCPU, cache, b)
+}
+func BenchmarkSpinlockNumCPU(b *testing.B) {
+	cache := NewLRUSpinlock(cacheSize)
+	benchmarkCache(numCPU, cache, b)
 }
 
 func BenchmarkActorModel10(b *testing.B) {
