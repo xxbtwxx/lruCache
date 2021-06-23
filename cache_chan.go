@@ -1,15 +1,15 @@
 package lruCache
 
-type chanLRUCache struct {
-	operations chan func(*chanLRUCache)
+type actorModelLRUCache struct {
+	operations chan func()
 	data       cacheType
 	usageOrder []cacheKey
 	maxSize    int
 }
 
-func NewLRUChan(size int) *chanLRUCache {
-	c := &chanLRUCache{
-		operations: make(chan func(*chanLRUCache)),
+func NewLRUActorModel(size int) *actorModelLRUCache {
+	c := &actorModelLRUCache{
+		operations: make(chan func()),
 		data:       make(cacheType),
 		usageOrder: make([]cacheKey, 0, size),
 		maxSize:    size,
@@ -20,45 +20,45 @@ func NewLRUChan(size int) *chanLRUCache {
 	return c
 }
 
-func (c *chanLRUCache) opLoop() {
+func (c *actorModelLRUCache) opLoop() {
 	for op := range c.operations {
-		op(c)
+		op()
 	}
 }
 
-func (c *chanLRUCache) Set(key cacheKey, data cacheValue) {
-	c.operations <- func(obj *chanLRUCache) {
-		if _, ok := obj.data[key]; ok {
-			moveToHead(obj.usageOrder, key)
+func (c *actorModelLRUCache) Set(key cacheKey, data cacheValue) {
+	c.operations <- func() {
+		if _, ok := c.data[key]; ok {
+			moveToHead(c.usageOrder, key)
 		} else {
 			if c.isFull() {
-				delete(obj.data, obj.usageOrder[0])
-				obj.usageOrder = obj.usageOrder[1:]
+				delete(c.data, c.usageOrder[0])
+				c.usageOrder = c.usageOrder[1:]
 			}
 
-			obj.usageOrder = append(obj.usageOrder, key)
+			c.usageOrder = append(c.usageOrder, key)
 		}
 
-		obj.data[key] = data
+		c.data[key] = data
 	}
 }
 
-func (c *chanLRUCache) Item(key cacheKey) (cacheValue, bool) {
+func (c *actorModelLRUCache) Item(key cacheKey) (cacheValue, bool) {
 	value := make(chan cacheValue, 1)
 	exist := make(chan bool, 1)
-	c.operations <- func(obj *chanLRUCache) {
-		val, ok := obj.data[key]
+	c.operations <- func() {
+		val, ok := c.data[key]
 		value <- val
 		exist <- ok
 
 		if ok {
-			moveToHead(obj.usageOrder, key)
+			moveToHead(c.usageOrder, key)
 		}
 	}
 
 	return <-value, <-exist
 }
 
-func (c *chanLRUCache) isFull() bool {
+func (c *actorModelLRUCache) isFull() bool {
 	return len(c.usageOrder) == c.maxSize
 }

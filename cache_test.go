@@ -7,7 +7,7 @@ import (
 )
 
 func TestChanLRU(t *testing.T) {
-	cache := NewLRUChan(4)
+	cache := NewLRUActorModel(4)
 	testCache(cache, t)
 }
 
@@ -68,8 +68,8 @@ func benchmarkCache(count int, c cacheInterface, b *testing.B) {
 
 var cacheSize = 4
 
-func BenchmarkChan1(b *testing.B) {
-	cache := NewLRUChan(cacheSize)
+func BenchmarkActorModel1(b *testing.B) {
+	cache := NewLRUActorModel(cacheSize)
 	benchmarkCache(1, cache, b)
 }
 func BenchmarkMutex1(b *testing.B) {
@@ -81,8 +81,8 @@ func BenchmarkSpinlock1(b *testing.B) {
 	benchmarkCache(1, cache, b)
 }
 
-func BenchmarkChan10(b *testing.B) {
-	cache := NewLRUChan(cacheSize)
+func BenchmarkActorModel10(b *testing.B) {
+	cache := NewLRUActorModel(cacheSize)
 	benchmarkCache(10, cache, b)
 }
 func BenchmarkMutex10(b *testing.B) {
@@ -94,15 +94,15 @@ func BenchmarkSpinlock10(b *testing.B) {
 	benchmarkCache(10, cache, b)
 }
 
-func BenchmarkChan100(b *testing.B) {
-	cache := NewLRUChan(cacheSize)
-	benchmarkCache(100, cache, b)
+func BenchmarkActorModel50(b *testing.B) {
+	cache := NewLRUActorModel(cacheSize)
+	benchmarkCache(50, cache, b)
 }
-func BenchmarkMutex100(b *testing.B) {
+func BenchmarkMutex50(b *testing.B) {
 	cache := NewLRUMutex(cacheSize)
-	benchmarkCache(100, cache, b)
+	benchmarkCache(50, cache, b)
 }
-func BenchmarkSpinlock100(b *testing.B) {
+func BenchmarkSpinlock50(b *testing.B) {
 	cache := NewLRUSpinlock(cacheSize)
-	benchmarkCache(100, cache, b)
+	benchmarkCache(50, cache, b)
 }
